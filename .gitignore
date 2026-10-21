@@ -1,0 +1,15 @@
+# Compiled programs and build output (rebuild them with `make`)
+build/
+minishell
+minishell-web/minishell
+minishell-web/minishell-web
+*.o
+a.out
+
+# Editor and operating system files
+.DS_Store
+.vscode/
+.idea/
+
+# Vercel
+.vercel

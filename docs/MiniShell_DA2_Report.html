@@ -1,0 +1,797 @@
+<title>MiniShell++ DA-2 Guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@500;700;800&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+:root{
+  --bg:#F6F7F5; --surface:#FFFFFF; --ink:#1A2127; --muted:#56626B; --line:#DCE1DF;
+  --accent:#1D6A86; --accent-soft:#E2EFF3; --amber:#9A6414; --amber-soft:#F6EBD9;
+  --green:#2E7A4F; --green-soft:#E1F0E6; --code-bg:#EEF1EF; --code-ink:#22303A;
+  --kw:#1D6A86; --cm:#6E7A80; --str:#8A5A12;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#11161A; --surface:#182026; --ink:#E2E8EB; --muted:#9AA7AF; --line:#2A353C;
+    --accent:#62B4D2; --accent-soft:#1B3440; --amber:#E0AE5E; --amber-soft:#3A2E1B;
+    --green:#74C495; --green-soft:#1C3325; --code-bg:#0D1215; --code-ink:#D5DEE2;
+    --kw:#7CC3DD; --cm:#7F8D94; --str:#E0B874; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#11161A; --surface:#182026; --ink:#E2E8EB; --muted:#9AA7AF; --line:#2A353C;
+  --accent:#62B4D2; --accent-soft:#1B3440; --amber:#E0AE5E; --amber-soft:#3A2E1B;
+  --green:#74C495; --green-soft:#1C3325; --code-bg:#0D1215; --code-ink:#D5DEE2;
+  --kw:#7CC3DD; --cm:#7F8D94; --str:#E0B874; color-scheme: dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font:16px/1.65 "IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;padding-inline:16px;padding-block:0 64px}
+.wrap{max-width:1180px;margin:0 auto;display:grid;grid-template-columns:230px minmax(0,1fr);gap:56px}
+nav.toc{position:sticky;top:env(safe-area-inset-top,0px);align-self:start;padding-top:40px;max-height:100vh;overflow:auto;font-size:14px}
+nav.toc p{font:600 11px/1 "JetBrains Mono",monospace;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:0 0 12px}
+nav.toc ol{list-style:none;margin:0;padding:0;display:grid;gap:2px;counter-reset:t}
+nav.toc a{display:block;padding:5px 10px;border-radius:6px;color:var(--muted);text-decoration:none;border-left:2px solid transparent}
+nav.toc a:hover,nav.toc a:focus-visible{color:var(--ink);background:var(--accent-soft);outline:none}
+main{min-width:0;max-width:780px;padding-top:40px}
+header.cover{padding-bottom:28px;border-bottom:1px solid var(--line);margin-bottom:12px}
+.eyebrow{font:600 12px/1 "JetBrains Mono",monospace;letter-spacing:.1em;text-transform:uppercase;color:var(--accent)}
+h1,h2,h3,h4{font-family:"Schibsted Grotesk","IBM Plex Sans",system-ui,sans-serif;text-wrap:balance;line-height:1.2;color:var(--ink)}
+h1{font-size:clamp(34px,6vw,52px);font-weight:800;margin:14px 0 12px;letter-spacing:-.02em}
+h1 .pp{color:var(--accent)}
+.lede{font-size:19px;color:var(--muted);max-width:62ch;margin:0}
+h2{font-size:28px;font-weight:800;margin:64px 0 8px;padding-top:12px;letter-spacing:-.01em}
+h2 .sec{font:600 13px/1 "JetBrains Mono",monospace;color:var(--accent);display:block;margin-bottom:10px;letter-spacing:.06em}
+h3{font-size:20px;font-weight:700;margin:36px 0 6px}
+h4{font-size:16px;font-weight:700;margin:24px 0 4px}
+p,li{max-width:68ch}
+p{margin:10px 0}
+a{color:var(--accent)}
+ul,ol{padding-left:22px;margin:10px 0}
+li{margin:4px 0}
+code{font-family:"JetBrains Mono",ui-monospace,Menlo,monospace;font-size:.86em;background:var(--code-bg);color:var(--code-ink);padding:1px 5px;border-radius:4px}
+pre{font:13.5px/1.6 "JetBrains Mono",ui-monospace,Menlo,monospace;background:var(--code-bg);color:var(--code-ink);padding:16px 18px;border-radius:8px;overflow-x:auto;margin:14px 0;border:1px solid var(--line)}
+pre code{background:none;padding:0;font-size:inherit}
+pre .k{color:var(--kw);font-weight:600} pre .c{color:var(--cm);font-style:italic} pre .s{color:var(--str)}
+.file{font:600 12px/1 "JetBrains Mono",monospace;color:var(--muted);margin:18px 0 -8px;display:flex;gap:8px;align-items:center}
+.file::before{content:"";width:8px;height:8px;border-radius:2px;background:var(--accent)}
+.facts{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:10px;overflow:hidden;margin:26px 0 8px}
+.facts div{background:var(--surface);padding:14px 16px}
+.facts b{display:block;font:800 26px/1.1 "Schibsted Grotesk",sans-serif;font-variant-numeric:tabular-nums}
+.facts span{font-size:13px;color:var(--muted)}
+.tbl{overflow-x:auto;margin:16px 0;border:1px solid var(--line);border-radius:8px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:14.5px}
+th,td{text-align:left;padding:9px 14px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font:600 12px/1.3 "JetBrains Mono",monospace;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);background:var(--bg)}
+tr:last-child td{border-bottom:0}
+td code{white-space:nowrap}
+.note{border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:14px 18px;margin:18px 0}
+.note.key{background:var(--accent-soft);border-color:transparent}
+.note .lbl{font:600 11px/1 "JetBrains Mono",monospace;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);display:block;margin-bottom:6px}
+.note p{margin:4px 0}
+.pill{display:inline-block;font:600 11px/1 "JetBrains Mono",monospace;padding:4px 7px;border-radius:99px;letter-spacing:.04em;white-space:nowrap}
+.pill.done{background:var(--green-soft);color:var(--green)}
+.pill.todo{background:var(--amber-soft);color:var(--amber)}
+.diagram{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:18px;margin:18px 0;overflow-x:auto}
+.diagram svg{display:block;min-width:640px;width:100%;height:auto}
+.diagram figcaption{font-size:13px;color:var(--muted);margin-top:10px}
+svg text{font-family:"JetBrains Mono",monospace;fill:var(--ink)}
+svg .muted{fill:var(--muted)}
+svg .box{fill:var(--bg);stroke:var(--line);stroke-width:1.5}
+svg .proc{fill:var(--accent-soft);stroke:var(--accent);stroke-width:1.5}
+svg .pipe{fill:var(--amber-soft);stroke:var(--amber);stroke-width:1.5}
+svg .arrow{stroke:var(--accent);stroke-width:1.8;fill:none}
+svg .arrow2{stroke:var(--amber);stroke-width:1.8;fill:none}
+svg .ah{fill:var(--accent)} svg .ah2{fill:var(--amber)}
+.steps{counter-reset:s;list-style:none;padding:0}
+.steps>li{counter-increment:s;position:relative;padding-left:40px;margin:12px 0}
+.steps>li::before{content:counter(s);position:absolute;left:0;top:1px;width:26px;height:26px;border-radius:50%;background:var(--accent);color:var(--bg);font:700 13px/26px "JetBrains Mono",monospace;text-align:center}
+details{border:1px solid var(--line);background:var(--surface);border-radius:8px;margin:8px 0;padding:0 16px}
+details[open]{padding-bottom:10px}
+summary{cursor:pointer;padding:12px 0;font-weight:600;list-style:none;display:flex;gap:10px}
+summary::before{content:"Q";font:700 12px/22px "JetBrains Mono",monospace;color:var(--accent);flex:none}
+summary::-webkit-details-marker{display:none}
+summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px}
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.cols>div{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:6px 18px 10px}
+.term{background:#0F1417;color:#D6DEE2;border-color:#0F1417}
+.term .p{color:#C58BE0} .term .u{color:#7FD19B} .term .d{color:#79B8E8} .term .e{color:#F08A7E}
+footer{margin-top:72px;padding-top:20px;border-top:1px solid var(--line);color:var(--muted);font-size:13px}
+@media (max-width:900px){
+  .wrap{grid-template-columns:minmax(0,1fr);gap:0}
+  nav.toc{display:none}
+  .facts{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .cols{grid-template-columns:1fr}
+}
+@media print{
+  nav.toc{display:none} .wrap{display:block} body{background:#fff}
+  h2{break-before:page;margin-top:0} details{border:0} details>*{display:block}
+  pre,.diagram,.tbl{break-inside:avoid}
+}
+@media (prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
+html{scroll-behavior:smooth}
+</style>
+
+<div class="wrap">
+<nav class="toc" aria-label="Contents">
+  <p>Contents</p>
+  <ol>
+    <li><a href="#overview">Overview</a></li>
+    <li><a href="#run">Build &amp; run</a></li>
+    <li><a href="#architecture">Architecture</a></li>
+    <li><a href="#walkthrough">Code walkthrough</a></li>
+    <li><a href="#concepts">OS concepts</a></li>
+    <li><a href="#syscalls">System call reference</a></li>
+    <li><a href="#testing">Testing</a></li>
+    <li><a href="#status">Done vs remaining</a></li>
+    <li><a href="#demo">Presentation demo</a></li>
+    <li><a href="#viva">Viva questions</a></li>
+  </ol>
+</nav>
+
+<main>
+<header class="cover">
+  <span class="eyebrow">Operating Systems · DA-2 · 80% implementation</span>
+  <h1>MiniShell<span class="pp">++</span></h1>
+  <p class="lede">A guide to the code, the OS concepts it uses, and what's left to build. It covers every file and system call, how a command runs from start to finish, and the questions you're likely to be asked in the viva.</p>
+  <div class="facts">
+    <div><b>7</b><span>source modules</span></div>
+    <div><b>~1,500</b><span>lines of C++17</span></div>
+    <div><b>14</b><span>built-in commands</span></div>
+    <div><b>36/36</b><span>automated tests pass</span></div>
+  </div>
+</header>
+
+<!-- ============================================================ -->
+<h2 id="overview"><span class="sec">§1</span>Overview</h2>
+<p>A <strong>shell</strong> is an ordinary user program that reads commands and asks the operating system to run them. It isn't part of the kernel. Every action it takes, like starting a program, connecting two programs, or stopping one, goes through a <strong>system call</strong>. That makes a shell one of the best programs for showing how an OS manages processes.</p>
+<p>MiniShell++ is our own Unix shell, written in C++. It works like a small Bash. For DA-2 we promised to complete 80% of the execution, and the following already works:</p>
+<ul>
+  <li>Running any program installed on the system (<code>ls</code>, <code>grep</code>, <code>python3</code> and so on)</li>
+  <li>Parsing command lines with quotes, escapes, variables (<code>$HOME</code>, <code>$?</code>) and <code>~</code></li>
+  <li>Pipes, which connect programs: <code>cat file | sort | uniq</code></li>
+  <li>I/O redirection: <code>&lt;</code>, <code>&gt;</code>, <code>&gt;&gt;</code>, <code>2&gt;</code>, <code>2&gt;&amp;1</code></li>
+  <li>Background jobs with <code>&amp;</code></li>
+  <li>Full job control: Ctrl-Z, Ctrl-C, <code>jobs</code>, <code>fg</code>, <code>bg</code>, <code>kill</code></li>
+  <li>Signal handling, so the shell itself survives Ctrl-C and Ctrl-Z</li>
+  <li>14 built-in commands, command history, and <code>!!</code> / <code>!N</code> re-execution</li>
+</ul>
+
+<div class="note key">
+  <span class="lbl">Summary for the presentation</span>
+  <p>"MiniShell++ reads a line, parses it into a pipeline of commands, and creates one process per command using <code>fork()</code> and <code>execvp()</code>. It connects the processes with <code>pipe()</code> and <code>dup2()</code>, puts them in their own process group, gives that group the terminal, and waits for them with <code>waitpid()</code>. Signals handle Ctrl-C and Ctrl-Z, and a job table tracks background and stopped jobs."</p>
+</div>
+
+<!-- ============================================================ -->
+<h2 id="run"><span class="sec">§2</span>Build &amp; run</h2>
+<p>You need macOS or Linux, a C++17 compiler (<code>g++</code> or <code>clang++</code>) and <code>make</code>.</p>
+<pre><code><span class="c"># 1. go to the project folder</span>
+cd ~/Documents/OS-Da
+
+<span class="c"># 2. compile (creates the ./minishell executable)</span>
+make
+
+<span class="c"># 3. start the shell</span>
+./minishell
+
+<span class="c"># run the automated tests</span>
+make test
+
+<span class="c"># other ways to run it</span>
+./minishell -c "ls | wc -l"      <span class="c"># run one command and exit</span>
+./minishell myscript.msh         <span class="c"># run commands from a file</span></code></pre>
+<p>The <code>Makefile</code> compiles each <code>src/*.cpp</code> file into <code>build/*.o</code>, then links the object files into <code>minishell</code>. It uses <code>-Wall -Wextra -Wpedantic</code>, and the build currently produces <strong>zero warnings</strong>. <code>make clean</code> deletes all build output.</p>
+
+<!-- ============================================================ -->
+<h2 id="architecture"><span class="sec">§3</span>Architecture</h2>
+
+<h3>Folder layout</h3>
+<pre><code>OS-Da/
+├── Makefile
+├── README.md
+├── include/              <span class="c">← headers: data structures + function declarations</span>
+│   ├── shell.h           <span class="c">global shell state (struct Shell)</span>
+│   ├── parser.h          <span class="c">Command, Redirect, Pipeline structs</span>
+│   ├── executor.h        <span class="c">executePipeline(), waitForeground()</span>
+│   ├── jobs.h            <span class="c">Process, Job, JobTable</span>
+│   ├── builtins.h        <span class="c">isBuiltin(), runBuiltin()</span>
+│   └── signals.h         <span class="c">signal setup functions</span>
+├── src/
+│   ├── main.cpp          <span class="c">entry point + read-eval loop</span>
+│   ├── shell.cpp         <span class="c">init, prompt, reading input, history expansion</span>
+│   ├── parser.cpp        <span class="c">tokenizer + parser</span>
+│   ├── executor.cpp      <span class="c">fork / pipe / dup2 / exec / wait</span>
+│   ├── jobs.cpp          <span class="c">job table and status tracking</span>
+│   ├── builtins.cpp      <span class="c">cd, pwd, jobs, fg, bg, kill ...</span>
+│   └── signals.cpp       <span class="c">signal handlers</span>
+└── tests/run_tests.sh    <span class="c">36 automated tests</span></code></pre>
+
+<h3>What happens when you press Enter</h3>
+<p>Every command line goes through the same stages. Each stage is handled by one module:</p>
+
+<figure class="diagram">
+<svg viewBox="0 0 760 430" role="img" aria-label="Command processing pipeline">
+  <defs>
+    <marker id="a1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" class="ah"/></marker>
+  </defs>
+  <rect class="box" x="20" y="20" width="200" height="56" rx="8"/>
+  <text x="120" y="44" text-anchor="middle" font-size="14" font-weight="600">Read line</text>
+  <text x="120" y="63" text-anchor="middle" font-size="11" class="muted">main.cpp · readLine()</text>
+
+  <rect class="box" x="280" y="20" width="200" height="56" rx="8"/>
+  <text x="380" y="44" text-anchor="middle" font-size="14" font-weight="600">History expansion</text>
+  <text x="380" y="63" text-anchor="middle" font-size="11" class="muted">shell.cpp · !! !N !-N</text>
+
+  <rect class="box" x="540" y="20" width="200" height="56" rx="8"/>
+  <text x="640" y="44" text-anchor="middle" font-size="14" font-weight="600">Tokenize</text>
+  <text x="640" y="63" text-anchor="middle" font-size="11" class="muted">parser.cpp · quotes, $VAR</text>
+
+  <rect class="box" x="540" y="120" width="200" height="56" rx="8"/>
+  <text x="640" y="144" text-anchor="middle" font-size="14" font-weight="600">Parse</text>
+  <text x="640" y="163" text-anchor="middle" font-size="11" class="muted">→ Pipeline struct</text>
+
+  <rect class="box" x="280" y="120" width="200" height="56" rx="8"/>
+  <text x="380" y="144" text-anchor="middle" font-size="14" font-weight="600">executePipeline()</text>
+  <text x="380" y="163" text-anchor="middle" font-size="11" class="muted">executor.cpp</text>
+
+  <path class="arrow" d="M220 48 H276" marker-end="url(#a1)"/>
+  <path class="arrow" d="M480 48 H536" marker-end="url(#a1)"/>
+  <path class="arrow" d="M640 76 V116" marker-end="url(#a1)"/>
+  <path class="arrow" d="M540 148 H484" marker-end="url(#a1)"/>
+
+  <path class="arrow" d="M330 176 L180 226" marker-end="url(#a1)"/>
+  <path class="arrow" d="M430 176 L560 226" marker-end="url(#a1)"/>
+  <text x="150" y="200" font-size="11" class="muted">single built-in,</text>
+  <text x="150" y="214" font-size="11" class="muted">foreground</text>
+  <text x="520" y="200" font-size="11" class="muted">anything else</text>
+
+  <rect class="proc" x="40" y="230" width="260" height="70" rx="8"/>
+  <text x="170" y="256" text-anchor="middle" font-size="14" font-weight="600">Run inside the shell</text>
+  <text x="170" y="276" text-anchor="middle" font-size="11" class="muted">save fds → redirect → builtin</text>
+  <text x="170" y="291" text-anchor="middle" font-size="11" class="muted">→ restore fds (cd, export, exit…)</text>
+
+  <rect class="proc" x="420" y="230" width="300" height="70" rx="8"/>
+  <text x="570" y="256" text-anchor="middle" font-size="14" font-weight="600">For each command: pipe + fork</text>
+  <text x="570" y="276" text-anchor="middle" font-size="11" class="muted">child: setpgid, dup2, redirect, execvp</text>
+  <text x="570" y="291" text-anchor="middle" font-size="11" class="muted">parent: setpgid, close pipe ends</text>
+
+  <path class="arrow" d="M570 300 V336" marker-end="url(#a1)"/>
+  <rect class="box" x="420" y="340" width="300" height="70" rx="8"/>
+  <text x="570" y="364" text-anchor="middle" font-size="14" font-weight="600">Add to JobTable</text>
+  <text x="570" y="384" text-anchor="middle" font-size="11" class="muted">background (&amp;) → print [id] pid</text>
+  <text x="570" y="399" text-anchor="middle" font-size="11" class="muted">foreground → waitForeground()</text>
+
+  <path class="arrow" d="M420 375 H200 V304" marker-end="url(#a1)"/>
+  <text x="215" y="366" font-size="11" class="muted">status stored in $?</text>
+</svg>
+<figcaption>Life of one command line. After it finishes, the loop reaps finished background jobs, prints any notifications, and shows the prompt again.</figcaption>
+</figure>
+
+<h3>The core data structures</h3>
+<p>The parser turns text into these structs, and the executor only reads them. Keeping the two stages separate like this is a standard compiler-style design.</p>
+<div class="file">include/parser.h</div>
+<pre><code><span class="k">struct</span> Redirect {
+    <span class="k">enum class</span> Kind { Read, Write, Append, Duplicate };
+    Kind kind;
+    <span class="k">int</span> fd;              <span class="c">// which descriptor: 0 stdin, 1 stdout, 2 stderr</span>
+    std::string target;  <span class="c">// file name</span>
+    <span class="k">int</span> sourceFd;        <span class="c">// for 2&gt;&amp;1 → fd=2, sourceFd=1</span>
+};
+<span class="k">struct</span> Command  { std::vector&lt;std::string&gt; argv; std::vector&lt;Redirect&gt; redirects; };
+<span class="k">struct</span> Pipeline { std::vector&lt;Command&gt; commands; <span class="k">bool</span> background; std::string text; };</code></pre>
+<p>For example, <code>grep -i err &lt; log.txt | sort &gt; out.txt &amp;</code> becomes:</p>
+<pre><code>Pipeline {
+  background: true,  text: "grep -i err &lt; log.txt | sort &gt; out.txt"
+  commands: [
+    Command { argv: ["grep","-i","err"], redirects: [ {Read, fd 0, "log.txt"} ] },
+    Command { argv: ["sort"],            redirects: [ {Write, fd 1, "out.txt"} ] }
+  ]
+}</code></pre>
+
+<div class="file">include/jobs.h + include/shell.h</div>
+<pre><code><span class="k">struct</span> Process { pid_t pid; <span class="k">bool</span> completed, stopped; <span class="k">int</span> status; };
+<span class="k">struct</span> Job {
+    <span class="k">int</span> id;                      <span class="c">// the [1], [2] number users see</span>
+    pid_t pgid;                  <span class="c">// process group of the whole pipeline</span>
+    std::string command;
+    std::vector&lt;Process&gt; procs;  <span class="c">// one per command in the pipeline</span>
+    <span class="k">bool</span> background, notified;
+    termios tmodes;              <span class="c">// terminal settings saved when stopped</span>
+};
+<span class="k">struct</span> Shell {                   <span class="c">// one global instance: g_shell</span>
+    <span class="k">bool</span> interactive; pid_t pgid; termios tmodes;
+    <span class="k">int</span> lastStatus;               <span class="c">// $?</span>
+    JobTable jobs; std::vector&lt;std::string&gt; history; ...
+};</code></pre>
+
+<!-- ============================================================ -->
+<h2 id="walkthrough"><span class="sec">§4</span>Code walkthrough, file by file</h2>
+
+<h3>main.cpp: the read-eval loop</h3>
+<p>The program starts here. It works out whether it is running interactively, sets the shell up, and then loops forever:</p>
+<pre><code><span class="k">bool</span> interactive = inputFd == STDIN_FILENO &amp;&amp; isatty(STDIN_FILENO);
+initShell(interactive);
+
+<span class="k">while</span> (g_shell.running) {
+    <span class="k">if</span> (g_childChanged) { g_childChanged = 0; g_shell.jobs.reap(); }  <span class="c">// SIGCHLD arrived</span>
+    g_shell.jobs.notify(interactive);        <span class="c">// "[1]+ Done  sleep 5"</span>
+    <span class="k">if</span> (interactive) std::cout &lt;&lt; buildPrompt();
+    <span class="k">int</span> r = readLine(inputFd, line);
+    <span class="k">if</span> (r == 0)  <span class="k">break</span>;                      <span class="c">// Ctrl-D (EOF)</span>
+    <span class="k">if</span> (r &lt; 0)  { std::cout &lt;&lt; '\n'; <span class="k">continue</span>; }  <span class="c">// Ctrl-C at prompt</span>
+    runLine(line);
+}</code></pre>
+<ul>
+  <li><code>isatty()</code> checks whether stdin is a real terminal. Job control is only enabled if it is. When the shell reads from a file or pipe (like the tests do), there is no terminal to hand over.</li>
+  <li>The program accepts three modes: no arguments (interactive), <code>-c "command"</code>, or a script file name.</li>
+  <li>If you press Ctrl-D while jobs are stopped, the shell warns "There are stopped jobs." once, the same way Bash does.</li>
+</ul>
+
+<h3>shell.cpp: setup, prompt, input, history</h3>
+<h4>initShell(): taking control of the terminal</h4>
+<pre><code><span class="c">// wait until we are in the foreground</span>
+<span class="k">while</span> (tcgetpgrp(terminalFd) != (pgrp = getpgrp()))
+    kill(-pgrp, SIGTTIN);
+installShellSignals(interactive);
+setpgid(0, 0);                          <span class="c">// shell gets its own process group</span>
+g_shell.pgid = getpgrp();
+tcsetpgrp(terminalFd, g_shell.pgid);    <span class="c">// that group now owns the terminal</span>
+tcgetattr(terminalFd, &amp;g_shell.tmodes); <span class="c">// remember terminal settings</span></code></pre>
+<p>This is the standard startup sequence for a job-control shell, as described in the GNU C Library manual. Only one process group can own a terminal at a time. The shell makes sure it owns the terminal before it starts.</p>
+
+<h4>readLine(): input with the <code>read()</code> system call</h4>
+<p>We read input with the raw <code>read()</code> system call instead of <code>std::getline</code>, because we need to detect Ctrl-C. When SIGINT arrives, <code>read()</code> fails with <code>errno == EINTR</code>. We check the flag our handler set, return <code>-1</code>, and the main loop prints a fresh prompt. If a SIGCHLD interrupts the read instead, we just keep reading.</p>
+
+<h4>buildPrompt()</h4>
+<p>This function builds <code>minishell++ [130] user@host:~/dir$</code> using <code>getenv("USER")</code>, <code>gethostname()</code> and <code>getcwd()</code>. The home directory is shortened to <code>~</code>, and ANSI escape codes add the colours. The red <code>[130]</code> only appears when the last command failed.</p>
+
+<h4>expandHistory() and runLine()</h4>
+<p>Before parsing, <code>!!</code> is replaced with the previous command, <code>!5</code> with command number 5, and <code>!-2</code> with the command two back. Anything inside single quotes is left alone. The expanded line is printed so the user can see what will run. <code>runLine()</code> then saves the line to history, parses it, and runs it with <code>executePipeline()</code>. If parsing fails, <code>$?</code> is set to 2, as in Bash.</p>
+
+<h3>parser.cpp: turning text into structure</h3>
+<p>Parsing has two stages.</p>
+<h4>Stage 1: tokenize()</h4>
+<p>This scans the line one character at a time and produces tokens: <em>words</em> and <em>operators</em> (<code>|</code>, <code>&amp;</code>, <code>&lt;</code>, <code>&gt;</code>, <code>&gt;&gt;</code>, <code>N&gt;&amp;M</code>). It is a small hand-written state machine:</p>
+<div class="tbl"><table>
+<thead><tr><th>Input</th><th>Rule</th><th>Example → result</th></tr></thead>
+<tbody>
+<tr><td>space / tab</td><td>ends the current word</td><td><code>ls -l</code> → <code>ls</code>, <code>-l</code></td></tr>
+<tr><td><code>'...'</code></td><td>everything literal, no expansion</td><td><code>'$HOME'</code> → <code>$HOME</code></td></tr>
+<tr><td><code>"..."</code></td><td>spaces kept; <code>$VAR</code> expanded; <code>\"</code> <code>\\</code> <code>\$</code> escapes</td><td><code>"hi $USER"</code> → <code>hi navaneeth</code></td></tr>
+<tr><td><code>\x</code></td><td>next character taken literally</td><td><code>a\ b</code> → one word <code>a b</code></td></tr>
+<tr><td><code>$VAR</code> <code>${VAR}</code></td><td>replaced with <code>getenv()</code>; unset variables disappear</td><td><code>${HOME}/x</code></td></tr>
+<tr><td><code>$?</code> <code>$$</code></td><td>last exit status / shell's PID</td><td><code>echo $?</code> → <code>0</code></td></tr>
+<tr><td><code>~</code></td><td>at the start of a word → <code>$HOME</code></td><td><code>~/Documents</code></td></tr>
+<tr><td><code>#</code></td><td>at the start of a word → rest of line ignored</td><td><code>ls # comment</code></td></tr>
+<tr><td><code>2&gt;</code> <code>2&gt;&gt;</code> <code>2&gt;&amp;1</code></td><td>a digit at word start followed by <code>&gt;</code> or <code>&lt;</code> names the fd</td><td><code>a2&gt;b</code> is <em>not</em> a redirect</td></tr>
+<tr><td><code>&amp;&amp;</code> <code>||</code> <code>;</code></td><td>planned for the final DA; reported as "not supported yet"</td><td></td></tr>
+</tbody></table></div>
+<p>An <code>inWord</code> flag lets <code>""</code> (an empty quoted string) count as a real argument, while <code>$UNSET_VAR</code> produces no argument at all. Bash behaves the same way.</p>
+
+<h4>Stage 2: parseLine()</h4>
+<p>This walks the tokens and builds the <code>Pipeline</code>:</p>
+<ul>
+  <li>A <strong>Word</strong> is added to the current command's <code>argv</code>.</li>
+  <li><strong>|</strong> finishes the current command and starts a new one. If the current command is empty, that's a syntax error (<code>| ls</code>).</li>
+  <li><strong>&lt; &gt; &gt;&gt;</strong> must be followed by a word, which becomes the file name. Otherwise the error is <code>syntax error near unexpected token `newline'</code>.</li>
+  <li><strong>&amp;</strong> must be the last token. It sets <code>background = true</code>.</li>
+</ul>
+<p>Errors are raised as a <code>ParseError</code> exception inside the parser, caught in one place, and returned as a message. The executor therefore never sees a half-built pipeline.</p>
+
+<h3>executor.cpp: where processes are created</h3>
+<p>This is the most important file for the OS course.</p>
+
+<h4>Decision: run in the shell or fork?</h4>
+<pre><code><span class="k">if</span> (pl.commands.size() == 1 &amp;&amp; !pl.background &amp;&amp; isBuiltin(argv[0]))
+    <span class="k">return</span> runBuiltinInShell(pl.commands[0]);</code></pre>
+<p>A built-in like <code>cd</code> <strong>has to run inside the shell process</strong>. If it ran in a child process, the child's working directory would change and then the child would exit, leaving the shell where it was. Built-ins that are part of a pipeline, such as <code>echo hi | tr a-z A-Z</code>, run in a child process, as they do in Bash.</p>
+<p><code>runBuiltinInShell()</code> still supports redirection (<code>echo hi &gt; f.txt</code>). It backs up each affected fd with <code>fcntl(fd, F_DUPFD_CLOEXEC, 10)</code>, applies the redirects, runs the built-in, and then uses <code>dup2</code> to put the original fds back.</p>
+
+<h4>The pipeline loop</h4>
+<div class="file">src/executor.cpp · executePipeline()</div>
+<pre><code><span class="k">int</span> inFd = STDIN_FILENO;               <span class="c">// where the next command reads from</span>
+<span class="k">for</span> (size_t i = 0; i &lt; n; ++i) {
+    <span class="k">int</span> pipefd[2] = {-1, -1};
+    <span class="k">if</span> (i + 1 &lt; n) pipe(pipefd);          <span class="c">// not needed after the last command</span>
+
+    pid_t pid = fork();
+    <span class="k">if</span> (pid == 0) {                      <span class="c">// ───── CHILD ─────</span>
+        setpgid(0, pgid == 0 ? 0 : pgid);  <span class="c">// join the job's process group</span>
+        <span class="k">if</span> (!background) tcsetpgrp(tty, getpgrp());
+        resetChildSignals();               <span class="c">// Ctrl-C/Z should affect me normally</span>
+        <span class="k">if</span> (inFd != 0) { dup2(inFd, 0); close(inFd); }
+        <span class="k">if</span> (pipefd[1] &gt;= 0) { dup2(pipefd[1], 1); close(pipefd[1]); close(pipefd[0]); }
+        runChild(cmd);                     <span class="c">// redirects, then execvp — never returns</span>
+    }
+    <span class="c">// ───── PARENT (shell) ─────</span>
+    <span class="k">if</span> (pgid == 0) pgid = pid;              <span class="c">// first child's PID becomes the group ID</span>
+    setpgid(pid, pgid);                    <span class="c">// done in both processes to avoid a race</span>
+    <span class="k">if</span> (inFd != 0) close(inFd);            <span class="c">// shell must close its copies of pipe ends</span>
+    <span class="k">if</span> (pipefd[1] &gt;= 0) { close(pipefd[1]); inFd = pipefd[0]; }
+}</code></pre>
+
+<figure class="diagram">
+<svg viewBox="0 0 760 300" role="img" aria-label="File descriptors for ls | grep cpp | wc -l">
+  <defs>
+    <marker id="a2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" class="ah2"/></marker>
+    <marker id="a3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" class="ah"/></marker>
+  </defs>
+  <text x="380" y="26" text-anchor="middle" font-size="14" font-weight="600">ls | grep cpp | wc -l</text>
+  <text x="380" y="46" text-anchor="middle" font-size="11" class="muted">3 processes · 2 pipes · all in one process group (pgid = PID of ls)</text>
+
+  <rect class="box" x="20" y="72" width="720" height="160" rx="10" stroke-dasharray="5 4"/>
+  <text x="34" y="92" font-size="11" class="muted">process group 4812 — owns the terminal while running</text>
+
+  <rect class="proc" x="40" y="110" width="150" height="100" rx="8"/>
+  <text x="115" y="136" text-anchor="middle" font-size="14" font-weight="600">ls</text>
+  <text x="115" y="158" text-anchor="middle" font-size="11" class="muted">pid 4812</text>
+  <text x="115" y="178" text-anchor="middle" font-size="11">0: terminal</text>
+  <text x="115" y="195" text-anchor="middle" font-size="11">1: pipe A write</text>
+
+  <rect class="pipe" x="215" y="140" width="80" height="40" rx="20"/>
+  <text x="255" y="165" text-anchor="middle" font-size="12" font-weight="600">pipe A</text>
+
+  <rect class="proc" x="320" y="110" width="150" height="100" rx="8"/>
+  <text x="395" y="136" text-anchor="middle" font-size="14" font-weight="600">grep cpp</text>
+  <text x="395" y="158" text-anchor="middle" font-size="11" class="muted">pid 4813</text>
+  <text x="395" y="178" text-anchor="middle" font-size="11">0: pipe A read</text>
+  <text x="395" y="195" text-anchor="middle" font-size="11">1: pipe B write</text>
+
+  <rect class="pipe" x="495" y="140" width="80" height="40" rx="20"/>
+  <text x="535" y="165" text-anchor="middle" font-size="12" font-weight="600">pipe B</text>
+
+  <rect class="proc" x="600" y="110" width="125" height="100" rx="8"/>
+  <text x="662" y="136" text-anchor="middle" font-size="14" font-weight="600">wc -l</text>
+  <text x="662" y="158" text-anchor="middle" font-size="11" class="muted">pid 4814</text>
+  <text x="662" y="178" text-anchor="middle" font-size="11">0: pipe B read</text>
+  <text x="662" y="195" text-anchor="middle" font-size="11">1: terminal</text>
+
+  <path class="arrow2" d="M190 160 H211" marker-end="url(#a2)"/>
+  <path class="arrow2" d="M295 160 H316" marker-end="url(#a2)"/>
+  <path class="arrow2" d="M470 160 H491" marker-end="url(#a2)"/>
+  <path class="arrow2" d="M575 160 H596" marker-end="url(#a2)"/>
+
+  <rect class="box" x="290" y="250" width="180" height="40" rx="8"/>
+  <text x="380" y="275" text-anchor="middle" font-size="12" font-weight="600">minishell (waitpid)</text>
+  <path class="arrow" d="M290 270 H115 V214" marker-end="url(#a3)"/>
+  <path class="arrow" d="M395 250 V214" marker-end="url(#a3)"/>
+  <path class="arrow" d="M470 270 H662 V214" marker-end="url(#a3)"/>
+  <text x="170" y="262" font-size="10" class="muted">fork()</text>
+  <text x="560" y="262" font-size="10" class="muted">fork()</text>
+</svg>
+<figcaption>The file descriptor table each child has after <code>dup2()</code>. The shell closes all of its own pipe ends. Otherwise <code>wc</code> would never see end-of-file and would hang.</figcaption>
+</figure>
+
+<h4>runChild(): redirection and exec</h4>
+<pre><code><span class="k">if</span> (!applyRedirections(cmd.redirects)) _exit(1);
+<span class="k">if</span> (isBuiltin(argv[0])) _exit(runBuiltin(argv));   <span class="c">// built-in inside a pipeline</span>
+execvp(args[0], args.data());                       <span class="c">// replaces this process image</span>
+<span class="c">// only reached if exec failed:</span>
+<span class="k">if</span> (errno == ENOENT) { cerr &lt;&lt; "command not found"; _exit(127); }
+_exit(126);                                         <span class="c">// e.g. permission denied</span></code></pre>
+<p><code>applyRedirections()</code> goes through the redirects <strong>in order</strong>. For <code>&gt; file</code> it runs <code>open(file, O_WRONLY|O_CREAT|O_TRUNC, 0644)</code>, then <code>dup2(fd, 1)</code>, then <code>close(fd)</code>. <code>&gt;&gt;</code> uses <code>O_APPEND</code> instead of <code>O_TRUNC</code>, and <code>2&gt;&amp;1</code> is simply <code>dup2(1, 2)</code>. Because the order is kept, <code>cmd &gt; f 2&gt;&amp;1</code> sends both streams to the file, while <code>cmd 2&gt;&amp;1 &gt; f</code> does not. That matches Bash.</p>
+<p>The child calls <code>_exit()</code> rather than <code>exit()</code> so that it doesn't flush stdio buffers it copied from the parent. Flushing them would print the same output twice.</p>
+
+<h4>waitForeground(): waiting and job control</h4>
+<pre><code>tcsetpgrp(tty, job.pgid);                    <span class="c">// give terminal to the job</span>
+<span class="k">if</span> (resume) { job.markRunning(); kill(-job.pgid, SIGCONT); }   <span class="c">// used by fg</span>
+
+<span class="k">while</span> (job.state() == JobState::Running) {
+    pid_t pid = waitpid(-1, &amp;status, WUNTRACED); <span class="c">// also returns when a child STOPS</span>
+    g_shell.jobs.updateStatus(pid, status);
+}
+tcsetpgrp(tty, g_shell.pgid);                 <span class="c">// take the terminal back</span>
+tcgetattr(tty, &amp;job.tmodes);                  <span class="c">// save job's terminal modes (e.g. vim)</span>
+tcsetattr(tty, TCSADRAIN, &amp;g_shell.tmodes);   <span class="c">// restore shell's</span>
+
+<span class="k">if</span> (job.state() == JobState::Stopped) print("[1]+  Stopped  sleep 30");
+<span class="k">else</span> { report signal if killed; jobs.remove(job.id); }</code></pre>
+<p>The <code>WUNTRACED</code> flag is what makes Ctrl-Z work. Without it, <code>waitpid</code> would ignore a stopped child and the shell would hang. The exit status follows the shell convention: normal exit gives <em>code</em>, death by a signal gives <em>128 + signal number</em>. So Ctrl-C (SIGINT = 2) gives <code>$? = 130</code>, and Ctrl-Z (SIGTSTP = 18 on macOS) gives <code>146</code>. On Linux SIGTSTP is 20, so you get 148.</p>
+
+<h3>jobs.cpp: the job table</h3>
+<p><code>JobTable</code> keeps a <code>std::map&lt;int, Job&gt;</code> ordered by job ID. Pointers to elements of a <code>std::map</code> stay valid when other jobs are added or removed, which matters because <code>fg</code> holds a <code>Job&amp;</code> while other jobs finish.</p>
+<div class="tbl"><table>
+<thead><tr><th>Method</th><th>What it does</th></tr></thead>
+<tbody>
+<tr><td><code>add()</code></td><td>Creates a job with ID = highest existing ID + 1 and one <code>Process</code> per PID</td></tr>
+<tr><td><code>updateStatus(pid, st)</code></td><td>Finds the process and interprets the status with <code>WIFSTOPPED</code>, <code>WIFCONTINUED</code> or exited/signalled</td></tr>
+<tr><td><code>reap()</code></td><td>Loops <code>waitpid(-1, WNOHANG|WUNTRACED|WCONTINUED)</code> without blocking, collecting every change so no zombies are left</td></tr>
+<tr><td><code>state()</code></td><td>Done if every process completed; Running if any process is running; otherwise Stopped</td></tr>
+<tr><td><code>notify()</code></td><td>Prints <code>[2]-  Done  sleep 5</code> or <code>Stopped</code> once, then removes finished jobs</td></tr>
+<tr><td><code>list()</code></td><td>Output of <code>jobs</code>: <code>+</code> marks the current job, <code>-</code> the previous one; <code>-l</code> also shows the PGID</td></tr>
+</tbody></table></div>
+<p>A finished job can be shown as <code>Done</code>, <code>Exit 3</code> (non-zero exit), or a signal name from <code>strsignal()</code> such as <code>Terminated: 15</code> or <code>Killed: 9</code>.</p>
+
+<h3>builtins.cpp: commands inside the shell</h3>
+<p>Built-ins are stored in a <code>std::map&lt;std::string, int(*)(const Args&amp;)&gt;</code>, a <strong>dispatch table</strong> that maps each name to a function. <code>isBuiltin()</code> looks a name up, and <code>runBuiltin()</code> calls the matching function. Adding a built-in takes one function and one line in the table.</p>
+<div class="tbl"><table>
+<thead><tr><th>Built-in</th><th>Implementation</th><th>Why it has to be a built-in</th></tr></thead>
+<tbody>
+<tr><td><code>cd [dir|-]</code></td><td><code>chdir()</code>, then sets <code>PWD</code> / <code>OLDPWD</code> with <code>setenv</code></td><td>Working directory is per-process state</td></tr>
+<tr><td><code>pwd</code></td><td><code>getcwd()</code></td><td>Convenience</td></tr>
+<tr><td><code>echo [-n]</code></td><td>Prints its arguments</td><td>Faster than forking</td></tr>
+<tr><td><code>export N=V</code> / <code>unset N</code></td><td><code>setenv</code> / <code>unsetenv</code>, validates names; with no arguments lists <code>environ</code></td><td>Environment is inherited by children, so it must be set in the parent</td></tr>
+<tr><td><code>exit [n]</code></td><td>Sets <code>running = false</code>; warns once if jobs are stopped</td><td>Has to end the shell itself</td></tr>
+<tr><td><code>history [-c|N]</code></td><td>Prints or clears <code>g_shell.history</code></td><td>History lives in shell memory</td></tr>
+<tr><td><code>jobs [-l]</code></td><td><code>reap()</code>, then <code>list()</code></td><td>Job table lives in the shell</td></tr>
+<tr><td><code>fg [%n]</code></td><td><code>waitForeground(job, resume=true)</code>: <code>tcsetpgrp</code> + <code>SIGCONT</code> + wait</td><td>Only the shell can hand over the terminal</td></tr>
+<tr><td><code>bg [%n]</code></td><td><code>kill(-pgid, SIGCONT)</code>, marks the job as background</td><td>Job table</td></tr>
+<tr><td><code>kill [-SIG] pid|%n</code></td><td><code>kill()</code>; <code>%n</code> sends to the whole group via <code>-pgid</code>; also sends SIGCONT to a stopped job so it can die; <code>-l</code> lists signals</td><td>Understands <code>%job</code> numbers</td></tr>
+<tr><td><code>wait</code></td><td>Blocking <code>waitpid</code> until no job is running (Ctrl-C breaks out)</td><td>Only a parent can wait for its children</td></tr>
+<tr><td><code>type name</code></td><td>Reports a built-in, or searches <code>$PATH</code> using <code>stat</code> + <code>access(X_OK)</code></td><td>Shows how a name will be resolved</td></tr>
+<tr><td><code>help</code></td><td>Prints usage</td><td></td></tr>
+</tbody></table></div>
+
+<h3>signals.cpp: surviving Ctrl-C and Ctrl-Z</h3>
+<pre><code><span class="k">void</span> installShellSignals(<span class="k">bool</span> interactive) {
+    setHandler(SIGCHLD, onSigchld, SA_RESTART);  <span class="c">// only sets a flag</span>
+    <span class="k">if</span> (!interactive) <span class="k">return</span>;
+    setHandler(SIGINT,  onSigint, 0);            <span class="c">// no SA_RESTART → read() is interrupted</span>
+    setHandler(SIGQUIT, SIG_IGN, 0);
+    setHandler(SIGTSTP, SIG_IGN, 0);             <span class="c">// Ctrl-Z must not stop the shell</span>
+    setHandler(SIGTTIN, SIG_IGN, 0);
+    setHandler(SIGTTOU, SIG_IGN, 0);             <span class="c">// needed to call tcsetpgrp() from background</span>
+}
+<span class="k">void</span> resetChildSignals() { <span class="c">/* SIG_DFL for all of the above + empty signal mask */</span> }</code></pre>
+<div class="note">
+  <span class="lbl">Design decision: async-signal safety</span>
+  <p>A signal handler can run in the middle of any instruction, including while a <code>std::map</code> is being modified. Calling <code>printf</code>, <code>malloc</code> or container methods inside a handler is undefined behaviour. So our handlers only write a <code>volatile sig_atomic_t</code> flag, and the main loop does the real work of reaping and printing when it is safe to. This is the textbook "self-flag" pattern.</p>
+</div>
+<p>The child resets its signal dispositions itself because <strong>ignored</strong> signals (SIG_IGN) stay ignored after <code>exec</code>. Only signals with handlers are reset automatically. Without this step, Ctrl-C wouldn't work on programs started from our shell.</p>
+
+<!-- ============================================================ -->
+<h2 id="concepts"><span class="sec">§5</span>OS concepts demonstrated</h2>
+
+<h3>1. Process creation: fork() and exec()</h3>
+<p>Unix creates processes in two steps.</p>
+<div class="cols">
+  <div>
+    <h4><code>fork()</code></h4>
+    <p>Duplicates the calling process. The child gets a copy of the parent's memory (copy-on-write), its open file descriptors, environment and working directory. It returns <strong>twice</strong>: 0 in the child and the child's PID in the parent.</p>
+  </div>
+  <div>
+    <h4><code>execvp()</code></h4>
+    <p>Replaces the current program with a new one, searching <code>$PATH</code> for it. The PID and open file descriptors stay the same. If it succeeds it never returns.</p>
+  </div>
+</div>
+<p><strong>Why two steps?</strong> The gap between <code>fork</code> and <code>exec</code> is where the child can set itself up. It redirects fds, joins a process group and resets signals, all without the new program knowing. That gap is how the shell implements pipes and redirection.</p>
+
+<h3>2. Process termination, exit status and zombies</h3>
+<p>When a process exits, the kernel keeps a small record of it (PID and exit status) until the parent collects it with <code>waitpid()</code>. A process in that state is a <strong>zombie</strong>. If a shell never collects its children, zombies pile up and fill the process table. MiniShell++ collects every child: foreground jobs in <code>waitForeground()</code>, background jobs in <code>reap()</code> after each SIGCHLD.</p>
+<div class="tbl"><table>
+<thead><tr><th>waitpid option / macro</th><th>Meaning</th><th>Where used</th></tr></thead>
+<tbody>
+<tr><td><code>WNOHANG</code></td><td>Don't block; return 0 if nothing has changed</td><td><code>reap()</code></td></tr>
+<tr><td><code>WUNTRACED</code></td><td>Also report children that stopped</td><td>fg wait, <code>reap()</code></td></tr>
+<tr><td><code>WCONTINUED</code></td><td>Also report children resumed by SIGCONT</td><td><code>reap()</code></td></tr>
+<tr><td><code>WIFEXITED / WEXITSTATUS</code></td><td>Normal exit and its code</td><td><code>statusToExitCode()</code></td></tr>
+<tr><td><code>WIFSIGNALED / WTERMSIG</code></td><td>Killed by a signal → 128 + signal number</td><td><code>statusToExitCode()</code></td></tr>
+<tr><td><code>WIFSTOPPED / WSTOPSIG</code></td><td>Stopped (Ctrl-Z)</td><td><code>updateStatus()</code></td></tr>
+</tbody></table></div>
+
+<h3>3. File descriptors and I/O redirection</h3>
+<p>Each process has a <strong>file descriptor table</strong>, which maps small integers to open files, pipes or terminals. By convention 0 is stdin, 1 is stdout and 2 is stderr. Programs like <code>ls</code> just write to fd 1 without knowing what it points to.</p>
+<p>Redirection means changing what an fd points to <strong>before</strong> calling exec. <code>dup2(old, new)</code> makes <code>new</code> refer to the same open file as <code>old</code>, closing whatever <code>new</code> pointed to before.</p>
+<pre><code><span class="c">// sort &lt; in.txt &gt;&gt; out.txt 2&gt;&amp;1   — what the child does before exec:</span>
+fd = open("in.txt", O_RDONLY);                      dup2(fd, 0); close(fd);
+fd = open("out.txt", O_WRONLY|O_CREAT|O_APPEND, 0644); dup2(fd, 1); close(fd);
+dup2(1, 2);
+execvp("sort", ...);</code></pre>
+
+<h3>4. Inter-process communication: pipes</h3>
+<p><code>pipe(fds)</code> creates a one-way kernel buffer. <code>fds[1]</code> is the write end and <code>fds[0]</code> is the read end. Pipes are inherited through <code>fork</code>, so related processes can talk through them.</p>
+<ul>
+  <li><strong>Blocking:</strong> a reader blocks while the pipe is empty, and a writer blocks while it is full (about 64 KB). The processes in a pipeline therefore run <em>concurrently</em> and pace each other automatically.</li>
+  <li><strong>EOF:</strong> a reader only gets EOF once <em>every</em> write end is closed. That is why both the shell and each child close the pipe ends they don't use. Forgetting to do this is the most common pipeline bug, because <code>wc</code> hangs forever.</li>
+  <li><strong>SIGPIPE:</strong> writing to a pipe with no readers raises SIGPIPE. In <code>yes | head -1</code>, <code>yes</code> is killed this way once <code>head</code> exits. Our shell doesn't print a message for SIGPIPE deaths, because they are normal.</li>
+</ul>
+
+<h3>5. Process groups, sessions and the controlling terminal</h3>
+<p>This is the concept that makes job control possible.</p>
+<ul>
+  <li>A <strong>process group</strong> is a set of processes identified by a PGID. All processes in one pipeline share a group, so one signal can reach the whole job: <code>kill(-pgid, sig)</code>.</li>
+  <li>A <strong>session</strong> holds process groups and has at most one <strong>controlling terminal</strong>.</li>
+  <li>Exactly one group in the session is the <strong>foreground process group</strong>, set with <code>tcsetpgrp()</code>. When you press Ctrl-C, the terminal driver sends SIGINT to <em>every process in the foreground group</em>, and Ctrl-Z sends SIGTSTP the same way.</li>
+  <li>If a background process tries to read from the terminal, it receives SIGTTIN and stops.</li>
+</ul>
+<p>The shell's job is to keep moving the foreground: to the job while it runs, and back to itself afterwards. That's why Ctrl-C kills <code>sleep</code> and not the shell. While <code>sleep</code> runs, the shell isn't in the foreground group at all.</p>
+
+<h3>6. Signals</h3>
+<p>Signals are software interrupts the kernel delivers to a process asynchronously. A process can accept the default action, ignore the signal, or catch it with a handler (<code>sigaction</code>).</p>
+<div class="tbl"><table>
+<thead><tr><th>Signal</th><th>Sent when</th><th>Shell does</th><th>Children do</th></tr></thead>
+<tbody>
+<tr><td><code>SIGINT</code> (2)</td><td>Ctrl-C</td><td>catches it → redraws the prompt</td><td>default: terminate</td></tr>
+<tr><td><code>SIGTSTP</code> (18)</td><td>Ctrl-Z</td><td>ignores it</td><td>default: stop</td></tr>
+<tr><td><code>SIGQUIT</code> (3)</td><td>Ctrl-\</td><td>ignores it</td><td>default: core dump</td></tr>
+<tr><td><code>SIGCHLD</code> (20 on macOS / 17 on Linux)</td><td>a child exits, stops or continues</td><td>sets a flag → <code>reap()</code></td><td>default</td></tr>
+<tr><td><code>SIGCONT</code></td><td><code>fg</code> / <code>bg</code></td><td>sends it</td><td>resume execution</td></tr>
+<tr><td><code>SIGTTOU</code> / <code>SIGTTIN</code></td><td>background process touches the terminal</td><td>ignores them</td><td>default: stop</td></tr>
+<tr><td><code>SIGTERM</code> / <code>SIGKILL</code></td><td><code>kill</code> built-in</td><td>sends them</td><td>terminate (KILL can't be caught)</td></tr>
+</tbody></table></div>
+
+<h3>7. Job states (a small scheduling state machine)</h3>
+<figure class="diagram">
+<svg viewBox="0 0 700 250" role="img" aria-label="Job state diagram">
+  <defs>
+    <marker id="a4" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" class="ah"/></marker>
+  </defs>
+  <rect class="proc" x="40" y="95" width="160" height="60" rx="30"/>
+  <text x="120" y="130" text-anchor="middle" font-size="15" font-weight="600">Running</text>
+  <rect class="pipe" x="450" y="30" width="180" height="60" rx="30"/>
+  <text x="540" y="65" text-anchor="middle" font-size="15" font-weight="600">Stopped</text>
+  <rect class="box" x="450" y="165" width="180" height="60" rx="30"/>
+  <text x="540" y="200" text-anchor="middle" font-size="15" font-weight="600">Done → removed</text>
+
+  <path class="arrow" d="M200 110 C300 70 360 55 446 58" marker-end="url(#a4)"/>
+  <text x="250" y="62" font-size="11" class="muted">Ctrl-Z / SIGTSTP / SIGSTOP</text>
+  <path class="arrow" d="M450 75 C360 100 290 125 204 128" marker-end="url(#a4)"/>
+  <text x="270" y="140" font-size="11" class="muted">fg / bg → SIGCONT</text>
+  <path class="arrow" d="M190 150 C280 195 360 200 446 196" marker-end="url(#a4)"/>
+  <text x="235" y="215" font-size="11" class="muted">exit / Ctrl-C / kill</text>
+  <path class="arrow" d="M540 90 V161" marker-end="url(#a4)"/>
+  <text x="552" y="130" font-size="11" class="muted">kill %n</text>
+</svg>
+<figcaption>Each state is worked out from the flags on the job's processes (<code>completed</code>, <code>stopped</code>), which are updated from <code>waitpid</code> results.</figcaption>
+</figure>
+
+<h3>8. Environment and inheritance</h3>
+<p>Environment variables, working directory, open fds and signal dispositions are all copied into a child at <code>fork</code> time. A child can never change its parent's copies. That is why <code>cd</code> and <code>export</code> are built-ins, and why <code>export FOO=1</code> followed by <code>env | grep FOO</code> works: <code>env</code> inherits the environment of the shell that forked it.</p>
+
+<!-- ============================================================ -->
+<h2 id="syscalls"><span class="sec">§6</span>System call reference</h2>
+<div class="tbl"><table>
+<thead><tr><th>Call</th><th>Purpose</th><th>File</th></tr></thead>
+<tbody>
+<tr><td><code>fork</code></td><td>Create a child process</td><td>executor.cpp</td></tr>
+<tr><td><code>execvp</code></td><td>Load and run a program, searching PATH</td><td>executor.cpp</td></tr>
+<tr><td><code>_exit</code></td><td>Terminate a child without flushing copied buffers</td><td>executor.cpp</td></tr>
+<tr><td><code>waitpid</code></td><td>Collect child status (exit / stop / continue)</td><td>executor.cpp, jobs.cpp, builtins.cpp</td></tr>
+<tr><td><code>pipe</code></td><td>Create a pipe for IPC</td><td>executor.cpp</td></tr>
+<tr><td><code>dup2</code></td><td>Redirect a file descriptor</td><td>executor.cpp</td></tr>
+<tr><td><code>open</code> / <code>close</code></td><td>Open redirect targets / release fds</td><td>executor.cpp</td></tr>
+<tr><td><code>fcntl(F_DUPFD_CLOEXEC)</code></td><td>Back up fds for built-in redirection</td><td>executor.cpp</td></tr>
+<tr><td><code>read</code></td><td>Read user input (interruptible)</td><td>shell.cpp</td></tr>
+<tr><td><code>setpgid</code> / <code>getpgrp</code></td><td>Create / join process groups</td><td>executor.cpp, shell.cpp</td></tr>
+<tr><td><code>tcsetpgrp</code> / <code>tcgetpgrp</code></td><td>Set / get the terminal's foreground group</td><td>executor.cpp, shell.cpp</td></tr>
+<tr><td><code>tcgetattr</code> / <code>tcsetattr</code></td><td>Save / restore terminal modes</td><td>executor.cpp, shell.cpp</td></tr>
+<tr><td><code>isatty</code></td><td>Detect interactive mode</td><td>main.cpp</td></tr>
+<tr><td><code>sigaction</code> / <code>sigprocmask</code></td><td>Install handlers / reset the mask in children</td><td>signals.cpp</td></tr>
+<tr><td><code>kill</code></td><td>Send signals (negative PID = whole group)</td><td>builtins.cpp, executor.cpp</td></tr>
+<tr><td><code>chdir</code> / <code>getcwd</code></td><td>Change / query the working directory</td><td>builtins.cpp, shell.cpp</td></tr>
+<tr><td><code>setenv</code> / <code>unsetenv</code> / <code>getenv</code></td><td>Environment variables</td><td>builtins.cpp, parser.cpp</td></tr>
+<tr><td><code>stat</code> / <code>access</code></td><td>Find executables for <code>type</code></td><td>builtins.cpp</td></tr>
+<tr><td><code>getpid</code> / <code>gethostname</code></td><td><code>$$</code> and the prompt</td><td>parser.cpp, shell.cpp</td></tr>
+</tbody></table></div>
+
+<!-- ============================================================ -->
+<h2 id="testing"><span class="sec">§7</span>Testing</h2>
+<p><code>tests/run_tests.sh</code> runs the shell in non-interactive mode (<code>-c</code> or piped input) and compares its output with the expected output. All <strong>36 tests pass</strong>.</p>
+<div class="tbl"><table>
+<thead><tr><th>Group</th><th>Tests</th><th>Covers</th></tr></thead>
+<tbody>
+<tr><td>Commands &amp; built-ins</td><td>9</td><td>external commands, pwd, cd, cd -, command not found → 127, $?, exit code, type</td></tr>
+<tr><td>Quoting &amp; expansion</td><td>7</td><td>single/double quotes, ${VAR}, backslash, ~, export/unset, comments</td></tr>
+<tr><td>Redirection</td><td>7</td><td>&gt;, &gt;&gt;, &lt;, 2&gt;, 2&gt;&amp;1, redirected built-in, missing file error</td></tr>
+<tr><td>Pipes</td><td>5</td><td>2-stage, 4-stage, pipe + redirect, built-in in pipe, pipeline status</td></tr>
+<tr><td>Background jobs</td><td>3</td><td>&amp; + wait, jobs listing, kill %1</td></tr>
+<tr><td>History</td><td>2</td><td>!!, !N</td></tr>
+<tr><td>Syntax errors</td><td>3</td><td>leading pipe, missing file name, unclosed quote</td></tr>
+</tbody></table></div>
+<p>Job control needs a real terminal, so we also tested it by driving the shell through a <strong>pseudo-terminal</strong> (Python's <code>pty</code> module) and sending real Ctrl-Z and Ctrl-C bytes. The verified sequence was: <code>sleep 30</code> → Ctrl-Z → <code>jobs</code> → <code>bg</code> → <code>jobs -l</code> → <code>fg</code> → Ctrl-C (<code>$?</code> = 130), then stopping a pipeline, <code>kill %1</code> on a stopped job ("Terminated"), and <code>exit</code> with stopped jobs (warns once, then exits). No processes were left behind.</p>
+
+<!-- ============================================================ -->
+<h2 id="status"><span class="sec">§8</span>What's done and what's left</h2>
+
+<h3>Completed in DA-2</h3>
+<div class="tbl"><table>
+<thead><tr><th>Feature from the abstract</th><th>Status</th></tr></thead>
+<tbody>
+<tr><td>Interpret user commands (parser, quotes, variables)</td><td><span class="pill done">DONE</span></td></tr>
+<tr><td>Create processes / execute system commands</td><td><span class="pill done">DONE</span></td></tr>
+<tr><td>Navigate the file system (cd, pwd)</td><td><span class="pill done">DONE</span></td></tr>
+<tr><td>Manage input/output streams (redirection)</td><td><span class="pill done">DONE</span></td></tr>
+<tr><td>Piping</td><td><span class="pill done">DONE</span></td></tr>
+<tr><td>Launch background processes</td><td><span class="pill done">DONE</span></td></tr>
+<tr><td>Job control (jobs / fg / bg / kill, Ctrl-Z)</td><td><span class="pill done">DONE</span></td></tr>
+<tr><td>Signal handling</td><td><span class="pill done">DONE</span></td></tr>
+<tr><td>Environment variables, history, prompt</td><td><span class="pill done">DONE</span></td></tr>
+</tbody></table></div>
+
+<h3>Remaining for the final DA (~20%)</h3>
+<p>Each item below includes an implementation plan, so it can be picked up directly.</p>
+<div class="tbl"><table>
+<thead><tr><th>Feature</th><th>How to implement</th><th>Where</th></tr></thead>
+<tbody>
+<tr><td><span class="pill todo">TODO</span> <code>;</code> <code>&amp;&amp;</code> <code>||</code> command lists</td><td>Add a <code>CommandList</code> of <code>(Pipeline, operator)</code> pairs above <code>Pipeline</code>. Run each in turn: <code>&amp;&amp;</code> only if <code>$?</code> == 0, <code>||</code> only if it is not, <code>;</code> always. Remove the "not supported yet" checks.</td><td>parser.cpp, shell.cpp</td></tr>
+<tr><td><span class="pill todo">TODO</span> Wildcards <code>* ? [a-z]</code></td><td>After tokenizing, pass each unquoted word containing a glob character to POSIX <code>glob()</code> and replace it with the matches. Record which words were quoted so that <code>'*.cpp'</code> isn't expanded.</td><td>parser.cpp</td></tr>
+<tr><td><span class="pill todo">TODO</span> Arrow-key history, tab completion</td><td>Put the terminal in raw mode with <code>tcsetattr</code> (turn off <code>ICANON</code> and <code>ECHO</code>), read keys one at a time, handle the <code>ESC [ A/B</code> sequences, and redraw the line. Completion lists <code>opendir</code>/<code>readdir</code> matches. GNU readline is an alternative.</td><td>new lineedit.cpp</td></tr>
+<tr><td><span class="pill todo">TODO</span> Persistent history + <code>~/.minishellrc</code></td><td>Load <code>~/.minishell_history</code> at startup and append each line to it. Run each line of <code>.minishellrc</code> through <code>runLine()</code> before the first prompt.</td><td>shell.cpp, main.cpp</td></tr>
+<tr><td><span class="pill todo">TODO</span> Here-documents <code>&lt;&lt;EOF</code></td><td>Read lines until the delimiter, write them into a <code>pipe()</code>, and use the read end as the command's stdin.</td><td>parser.cpp, executor.cpp</td></tr>
+<tr><td><span class="pill todo">TODO</span> Command substitution <code>$(...)</code></td><td>Fork a child that runs the inner command with stdout on a pipe, read everything from the pipe, trim the trailing newline, and put the text into the word.</td><td>parser.cpp</td></tr>
+<tr><td><span class="pill todo">TODO</span> Local variables, <code>VAR=x cmd</code></td><td>Keep a map of shell-only variables. Leading <code>NAME=value</code> words set the environment only in the child, before exec.</td><td>parser.cpp, executor.cpp</td></tr>
+</tbody></table></div>
+
+<h3>Known limitations (be honest if asked)</h3>
+<ul>
+  <li>Unquoted variables aren't word-split: <code>$X</code> containing spaces stays a single argument.</li>
+  <li>Only single-digit fd numbers work in redirects (<code>2&gt;</code>, not <code>12&gt;</code>).</li>
+  <li>When reading a script from a pipe, input is buffered in chunks, so a command inside the script that reads stdin may miss some of it. Interactive mode isn't affected.</li>
+  <li>History is only kept in memory and is lost on exit (planned).</li>
+</ul>
+
+<!-- ============================================================ -->
+<h2 id="demo"><span class="sec">§9</span>Presentation demo script</h2>
+<p>Run these in order. Each step shows one concept, so say the concept out loud as you type.</p>
+<ol class="steps">
+  <li><strong>Build it</strong>: <code>make clean &amp;&amp; make</code> (run in your normal terminal). "Builds with zero warnings."</li>
+  <li><strong>Start it and show help</strong>: <code>./minishell</code>, then <code>help</code></li>
+  <li><strong>fork + exec</strong>: <code>ls -l</code>, then <code>echo $$</code>, then <code>ps -o pid,ppid,pgid,comm</code>. "ps is our child: its PPID is our PID, and it has its own PGID."</li>
+  <li><strong>Exit status</strong>: <code>ls /nope</code>, then <code>echo $?</code> (prompt shows [1]), then <code>nosuchcmd</code> (127)</li>
+  <li><strong>Parsing</strong>: <code>echo "Hello $USER" 'no $expansion' ~</code></li>
+  <li><strong>Redirection</strong>: <code>echo first &gt; demo.txt</code>, <code>echo second &gt;&gt; demo.txt</code>, <code>cat &lt; demo.txt</code>, <code>ls /nope 2&gt; err.txt</code>, <code>cat err.txt</code></li>
+  <li><strong>Pipes</strong>: <code>cat src/executor.cpp | grep include | sort | head -3</code>, then <code>ps aux | grep sleep | wc -l</code>. "Each stage is its own process, connected by pipe() and dup2()." (Don't use <code>*</code> wildcards here, because globbing is a final-DA feature.)</li>
+  <li><strong>cd is a built-in</strong>: <code>cd /tmp</code>, <code>pwd</code>, <code>cd -</code>, <code>type cd</code>, <code>type ls</code></li>
+  <li><strong>Environment inheritance</strong>: <code>export COURSE=OS</code>, <code>env | grep COURSE</code></li>
+  <li><strong>Background job</strong>: <code>sleep 20 &amp;</code> (prints <code>[1] pid</code>), <code>jobs -l</code></li>
+  <li><strong>Job control</strong>: <code>sleep 100</code>, press <strong>Ctrl-Z</strong> (Stopped, $? = 146), <code>jobs</code>, <code>bg</code>, <code>jobs</code> (Running), <code>fg</code>, press <strong>Ctrl-C</strong> ($? = 130). "The shell survived because it wasn't in the foreground process group."</li>
+  <li><strong>Signals via kill</strong>: <code>sleep 100 &amp;</code>, <code>kill -l</code>, <code>kill -9 %1</code>, press Enter (<code>Killed: 9</code>)</li>
+  <li><strong>History</strong>: <code>history</code>, <code>!!</code>, <code>!3</code></li>
+  <li><strong>Tests</strong>: <code>exit</code>, then <code>make test</code> (36/36 pass)</li>
+</ol>
+
+<pre class="term"><code><span class="p">minishell++</span> <span class="u">user@mac</span>:<span class="d">~/OS-Da</span>$ sleep 100
+^Z
+[1]+  Stopped                 sleep 100
+<span class="p">minishell++</span> <span class="e">[146]</span> <span class="u">user@mac</span>:<span class="d">~/OS-Da</span>$ bg
+[1]+ sleep 100 &amp;
+<span class="p">minishell++</span> <span class="u">user@mac</span>:<span class="d">~/OS-Da</span>$ jobs -l
+[1]+  46415 Running                 sleep 100 &amp;
+<span class="p">minishell++</span> <span class="u">user@mac</span>:<span class="d">~/OS-Da</span>$ fg
+sleep 100
+^C
+<span class="p">minishell++</span> <span class="e">[130]</span> <span class="u">user@mac</span>:<span class="d">~/OS-Da</span>$</code></pre>
+
+<!-- ============================================================ -->
+<h2 id="viva"><span class="sec">§10</span>Likely viva questions</h2>
+
+<details><summary>Why does a shell use fork() and then exec(), instead of one call?</summary>
+<p>The gap between the two calls lets the child set up its environment before the new program starts. It redirects fds with <code>dup2</code>, joins a process group, and resets signals. The program being run needs no special code for any of this. <code>posix_spawn</code> combines both steps but is less flexible.</p></details>
+
+<details><summary>Why is cd a built-in? What happens if you run /usr/bin/cd?</summary>
+<p>The working directory is an attribute of each process. A child that calls <code>chdir()</code> changes only its own directory and then exits, so the shell's directory stays the same. For the same reason, <code>export</code> and <code>exit</code> also have to run inside the shell process.</p></details>
+
+<details><summary>What is a zombie process and how does your shell avoid them?</summary>
+<p>A zombie is a process that has exited but whose parent hasn't collected its status with <code>wait</code>. The kernel keeps its process table entry until then. Our shell collects foreground jobs in <code>waitForeground()</code>. For background jobs, the SIGCHLD handler sets a flag and the main loop calls <code>reap()</code>, which loops <code>waitpid(-1, WNOHANG)</code> until nothing is left.</p></details>
+
+<details><summary>What would happen if the parent didn't close the write end of the pipe?</summary>
+<p>The reading process (say <code>wc</code>) only sees EOF once every write end is closed. If the shell kept a copy open, <code>wc</code> would block forever and the pipeline would hang.</p></details>
+
+<details><summary>How does Ctrl-C kill the running program but not the shell?</summary>
+<p>The terminal driver sends SIGINT to the <em>foreground process group</em>. Before waiting, the shell makes the job's group the foreground group with <code>tcsetpgrp()</code>. The shell is in a different group, so it doesn't receive the signal. The shell also catches SIGINT for when you press Ctrl-C at the prompt.</p></details>
+
+<details><summary>How do fg and bg work internally?</summary>
+<p><code>bg</code> sends <code>SIGCONT</code> to the job's whole group (<code>kill(-pgid, SIGCONT)</code>) and marks it as running in the background. <code>fg</code> does the same, but first gives the terminal to the job with <code>tcsetpgrp</code>, restores its saved terminal modes, and then waits for it with <code>waitpid(..., WUNTRACED)</code> like any other foreground job.</p></details>
+
+<details><summary>Why does setpgid() get called in both the parent and the child?</summary>
+<p>To avoid a race condition. After <code>fork</code>, either process might run first. If only the parent called it, the child could exec and read the terminal before joining its group. If only the child called it, the parent could try to hand the terminal to a group that doesn't exist yet. Calling it on both sides guarantees the group exists whichever process runs first.</p></details>
+
+<details><summary>Why does your signal handler only set a flag?</summary>
+<p>Handlers run asynchronously and can interrupt code that is halfway through changing the job table or an I/O buffer. Only async-signal-safe operations are allowed inside a handler, and writing a <code>volatile sig_atomic_t</code> is one of them. The real work happens later in normal code.</p></details>
+
+<details><summary>What does exit status 130 or 146 mean?</summary>
+<p>If a process was ended by a signal, the shell reports 128 + the signal number. SIGINT is 2, so 130 means Ctrl-C. SIGTSTP is 18, so 146 means the job was stopped with Ctrl-Z. 127 means the command wasn't found, and 126 means it was found but couldn't be executed.</p></details>
+
+<details><summary>What's the difference between &gt; and &gt;&gt;, and how is 2&gt;&amp;1 done?</summary>
+<p><code>&gt;</code> opens the file with <code>O_TRUNC</code>, which empties it. <code>&gt;&gt;</code> uses <code>O_APPEND</code>, so every write goes to the end. <code>2&gt;&amp;1</code> is <code>dup2(1, 2)</code>: fd 2 now points wherever fd 1 currently points. Redirects are applied left to right, which is why their order matters.</p></details>
+
+<details><summary>Which OS scheduling concepts does this show?</summary>
+<p>Processes in a pipeline run concurrently, and the kernel scheduler switches between them. Pipes also cause blocking and waking: a reader sleeps on an empty pipe and wakes when data arrives. Job control shows state changes between running, stopped (not schedulable) and terminated. <code>wait</code> is the shell blocking on the event of a child changing state.</p></details>
+
+<details><summary>Why use _exit() in the child instead of exit()?</summary>
+<p><code>exit()</code> runs cleanup handlers and flushes stdio buffers. The child inherited a copy of the parent's buffers, so flushing them could print the parent's pending output a second time. <code>_exit()</code> ends the process immediately.</p></details>
+
+<footer>
+MiniShell++ · Operating Systems Digital Assignment 2 · C++17 · POSIX (macOS / Linux)
+</footer>
+</main>
+</div>

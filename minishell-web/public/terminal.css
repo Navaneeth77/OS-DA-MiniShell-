@@ -1,0 +1,141 @@
+:root {
+  --term-bg: #300A24;          /* Ubuntu terminal aubergine */
+  --term-fg: #FFFFFF;
+  --hb-bg: #2B2B2B;
+  --hb-fg: #F6F5F4;
+  --desk: #1D1D1D;
+  --font-term: "Ubuntu Mono", "DejaVu Sans Mono", "Liberation Mono", Menlo, monospace;
+  --font-ui: Ubuntu, Cantarell, "Noto Sans", system-ui, sans-serif;
+  --fs: 17px;
+  --lh: 20px;
+
+  /* GNOME / Ubuntu palette, 0-15 */
+  --c0: #171421; --c1: #C01C28; --c2: #26A269; --c3: #A2734C;
+  --c4: #12488B; --c5: #A347BA; --c6: #2AA1B3; --c7: #D0CFCC;
+  --c8: #5E5C64; --c9: #F66151; --c10: #33DA7A; --c11: #E9AD0C;
+  --c12: #2A7BDE; --c13: #C061CB; --c14: #33C7DE; --c15: #FFFFFF;
+}
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html, body { height: 100%; margin: 0; }
+body { background: var(--desk); overflow: hidden; font-family: var(--font-ui); }
+
+/* ----------------------------------------------------------- windows */
+.window { display: flex; flex-direction: column; overflow: hidden; }
+.terminal-window { position: fixed; inset: 0; background: var(--term-bg); }
+
+.headerbar {
+  height: 46px; flex: none; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center;
+  padding: 0 8px; background: var(--hb-bg); color: var(--hb-fg); user-select: none;
+  border-bottom: 1px solid #1B1B1B;
+}
+.hb-left { display: flex; align-items: center; gap: 6px; }
+.hb-right { display: flex; align-items: center; justify-content: flex-end; gap: 10px; padding-right: 4px; }
+.hb-title { font-weight: 700; font-size: 14.5px; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 70vw; }
+.hb-icon {
+  width: 34px; height: 34px; display: grid; place-items: center; border-radius: 6px; color: #DEDDDA;
+}
+.wc {
+  width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center;
+  background: rgba(255, 255, 255, .1); color: #F6F5F4;
+}
+
+/* ---------------------------------------------------------- terminal */
+.term {
+  flex: 1; min-height: 0; position: relative; overflow-y: auto; overflow-x: hidden;
+  padding: 2px 4px 2px 6px; cursor: text; outline: none;
+  scrollbar-width: thin; scrollbar-color: rgba(255, 255, 255, .25) transparent;
+}
+.term-screen {
+  font-family: var(--font-term); font-size: var(--fs); line-height: var(--lh); color: var(--term-fg);
+  white-space: pre; font-variant-ligatures: none;
+}
+.term-screen .row { height: var(--lh); overflow: hidden; }
+.term-input {
+  position: absolute; left: 0; top: 0; width: 1px; height: 1px; opacity: 0; resize: none;
+  border: 0; padding: 0; overflow: hidden; pointer-events: none;
+}
+.cursor { background: var(--term-fg); color: var(--term-bg); }
+.term:not(.focused) .cursor { background: transparent; color: inherit; outline: 1px solid var(--term-fg); outline-offset: -1px; }
+.term.focused.blink-off .cursor { background: transparent; color: inherit; }
+.b { font-weight: 700; }
+.i { font-style: italic; }
+.u { text-decoration: underline; }
+.d { opacity: .6; }
+.measure { position: absolute; visibility: hidden; font-family: var(--font-term); font-size: var(--fs); white-space: pre; }
+
+.offline {
+  position: absolute; left: 50%; bottom: 20px; transform: translateX(-50%);
+  background: #C01C28; color: #fff; padding: 10px 16px; border-radius: 8px; font-size: 14px;
+}
+.offline code { background: rgba(0,0,0,.25); padding: 1px 5px; border-radius: 4px; }
+
+/* ------------------------------------------------------------- gedit */
+.gedit {
+  position: fixed; width: min(760px, calc(100vw - 32px)); height: min(560px, calc(100vh - 80px));
+  background: #FFFFFF; border-radius: 10px 10px 4px 4px; z-index: 10;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, .35), 0 16px 48px rgba(0, 0, 0, .55);
+  color: #2E3436;
+}
+.gedit.maximized { left: 0 !important; top: 0 !important; width: 100vw; height: 100vh; border-radius: 0; }
+.gedit-bar { background: #EBEBEB; color: #2E3436; border-bottom: 1px solid #CDC7C2; cursor: default; }
+.gedit.inactive .gedit-bar { background: #F6F5F4; color: #929595; }
+.gedit-title { display: flex; flex-direction: column; line-height: 1.2; }
+.g-name { font-weight: 700; font-size: 14px; }
+.g-path { font-size: 12px; color: #6E6E6E; font-weight: 400; }
+.gedit .wc { background: #DDDBDA; color: #2E3436; cursor: pointer; }
+.gedit .wc:hover { background: #CFCDCB; }
+.gbtn {
+  font: 500 14px var(--font-ui); color: #2E3436; background: #F6F5F4; border: 1px solid #CDC7C2;
+  border-radius: 6px; padding: 5px 12px; cursor: pointer; box-shadow: 0 1px rgba(0, 0, 0, .05);
+}
+.gbtn:hover { background: #F9F9F8; }
+.gbtn.suggested { background: #3584E4; border-color: #1B6ACB; color: #fff; }
+.gbtn:focus-visible { outline: 2px solid #3584E4; outline-offset: 1px; }
+.open-btn { cursor: default; }
+.caret { font-size: 11px; margin-left: 2px; }
+
+.g-editor { flex: 1; min-height: 0; display: flex; overflow: auto; background: #FFFFFF; position: relative; }
+.g-gutter {
+  flex: none; padding: 4px 8px 4px 10px; text-align: right; color: #999999; background: #FAFAFA;
+  border-right: 1px solid #EEEEEE; font: 15px/20px var(--font-term); white-space: pre; user-select: none;
+  min-height: 100%;
+}
+.g-code { position: relative; flex: 1; min-width: 0; }
+.g-highlight, .g-text {
+  margin: 0; padding: 4px 8px; font: 15px/20px var(--font-term); tab-size: 8; white-space: pre;
+  border: 0; letter-spacing: 0; font-variant-ligatures: none;
+}
+.g-highlight { position: absolute; inset: 0; color: #2E3436; pointer-events: none; overflow: hidden; min-height: 100%; }
+.g-text {
+  position: relative; display: block; width: 100%; min-height: 100%; resize: none; outline: none; overflow: hidden;
+  background: transparent; color: transparent; caret-color: #2E3436;
+}
+.g-text::selection { background: rgba(53, 132, 228, .35); color: transparent; }
+.hl-kw { color: #A52A2A; font-weight: 700; }
+.hl-type { color: #2E8B57; font-weight: 700; }
+.hl-str { color: #FF00FF; }
+.hl-com { color: #0000FF; }
+.hl-pre { color: #A020F0; }
+.hl-num { color: #FF00FF; }
+
+.g-status {
+  flex: none; display: flex; justify-content: flex-end; gap: 22px; padding: 5px 16px;
+  background: #F6F5F4; border-top: 1px solid #CDC7C2; font-size: 13px; color: #2E3436; user-select: none;
+}
+.g-frozen, .g-confirm {
+  position: absolute; inset: 46px 0 0 0; display: grid; place-items: center; background: rgba(255, 255, 255, .55);
+}
+.g-frozen { backdrop-filter: grayscale(1); background: rgba(40, 40, 40, .35); }
+.g-dialog {
+  width: min(420px, 90%); background: #FAFAFA; border-radius: 10px; padding: 20px 20px 14px;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, .2), 0 10px 30px rgba(0, 0, 0, .35); font-size: 14px; text-align: center;
+}
+.g-dialog p { color: #5E5C64; margin: 10px 0 16px; line-height: 1.45; }
+.g-dialog code, .g-dialog kbd { font-family: var(--font-term); background: #EDEDED; padding: 0 4px; border-radius: 3px; }
+.g-dialog-buttons { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+
+@media (max-width: 600px) {
+  :root { --fs: 14px; --lh: 17px; }
+}

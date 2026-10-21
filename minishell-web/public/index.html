@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Terminal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Ubuntu+Mono:ital,wght@0,400;0,700;1,400&family=Ubuntu:wght@400;500;700&display=swap">
+<link rel="stylesheet" href="/terminal.css">
+</head>
+<body>
+<div class="window terminal-window" id="terminal-window">
+  <header class="headerbar">
+    <div class="hb-left">
+      <span class="hb-icon" aria-hidden="true">
+        <svg viewBox="0 0 16 16" width="16" height="16"><path d="M2 3h12v10H2z" fill="none" stroke="currentColor" stroke-width="1.3"/><path d="M4.5 6l2 2-2 2M8 10h3.5" fill="none" stroke="currentColor" stroke-width="1.3"/></svg>
+      </span>
+    </div>
+    <div class="hb-title" id="term-title">Terminal</div>
+    <div class="hb-right" aria-hidden="true">
+      <span class="wc"><svg viewBox="0 0 16 16" width="12" height="12"><path d="M4 8h8" stroke="currentColor" stroke-width="1.5"/></svg></span>
+      <span class="wc"><svg viewBox="0 0 16 16" width="12" height="12"><rect x="4" y="4" width="8" height="8" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></span>
+      <span class="wc"><svg viewBox="0 0 16 16" width="12" height="12"><path d="M4.5 4.5l7 7M11.5 4.5l-7 7" stroke="currentColor" stroke-width="1.5"/></svg></span>
+    </div>
+  </header>
+  <div class="term" id="term" tabindex="-1">
+    <div class="term-screen" id="term-screen"></div>
+    <textarea class="term-input" id="term-input" autocapitalize="off" autocomplete="off" spellcheck="false" aria-label="Terminal input"></textarea>
+  </div>
+  <div class="offline" id="offline" hidden>Disconnected from the MiniShell++ server. Start it with <code>make run</code>, then reload.</div>
+</div>
+
+<template id="gedit-tpl">
+  <section class="window gedit" role="dialog">
+    <header class="headerbar gedit-bar">
+      <div class="hb-left">
+        <button type="button" class="gbtn open-btn" tabindex="-1">Open <span class="caret">▾</span></button>
+      </div>
+      <div class="hb-title gedit-title">
+        <span class="g-name"></span>
+        <span class="g-path"></span>
+      </div>
+      <div class="hb-right">
+        <button type="button" class="gbtn save-btn">Save</button>
+        <span class="wc g-max" role="button" title="Maximize"><svg viewBox="0 0 16 16" width="12" height="12"><rect x="4" y="4" width="8" height="8" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></span>
+        <span class="wc g-close" role="button" title="Close"><svg viewBox="0 0 16 16" width="12" height="12"><path d="M4.5 4.5l7 7M11.5 4.5l-7 7" stroke="currentColor" stroke-width="1.5"/></svg></span>
+      </div>
+    </header>
+    <div class="g-editor">
+      <div class="g-gutter" aria-hidden="true"></div>
+      <div class="g-code">
+        <pre class="g-highlight" aria-hidden="true"></pre>
+        <textarea class="g-text" spellcheck="false" autocapitalize="off" autocomplete="off"></textarea>
+      </div>
+    </div>
+    <footer class="g-status">
+      <span class="g-lang"></span>
+      <span>Tab Width: 8 ▾</span>
+      <span class="g-pos">Ln 1, Col 1</span>
+      <span>INS</span>
+    </footer>
+    <div class="g-frozen" hidden>
+      <div class="g-dialog">
+        <strong>“<span class="g-frozen-name"></span>” is not responding.</strong>
+        <p>The gedit process was stopped with <kbd>Ctrl</kbd>+<kbd>Z</kbd> (SIGTSTP). Run <code>fg</code> or <code>bg</code> in the terminal to continue it.</p>
+        <div class="g-dialog-buttons">
+          <button type="button" class="gbtn g-force">Force Quit</button>
+        </div>
+      </div>
+    </div>
+    <div class="g-confirm" hidden>
+      <div class="g-dialog">
+        <strong>Save changes to document “<span class="g-confirm-name"></span>” before closing?</strong>
+        <p>If you don’t save, your changes will be permanently lost.</p>
+        <div class="g-dialog-buttons">
+          <button type="button" class="gbtn g-discard">Close without Saving</button>
+          <button type="button" class="gbtn g-cancel">Cancel</button>
+          <button type="button" class="gbtn suggested g-save-close">Save</button>
+        </div>
+      </div>
+    </div>
+  </section>
+</template>
+
+<script src="/terminal.js"></script>
+<script src="/gedit.js"></script>
+</body>
+</html>
